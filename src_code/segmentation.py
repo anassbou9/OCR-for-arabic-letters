@@ -1,6 +1,7 @@
 import numpy as np
 import preprocessing as pre
 import matplotlib.pyplot as plt
+import os
 import cv2 as cv
 
 PROJECTION_DICT = {"vertical": 0, "horizontal": 1}
@@ -46,22 +47,21 @@ def segment(image, axis, thresh=14, cut=4):
     return segments
 
 
-original_img, preprocessed_img = pre.preprocess(
-    "c:/Users/ab/Desktop/Anass/isima/OCR-for-arabic-letters/books_for_ocr/scanned_pics/test_2.PNG"
-)
+curr_direct_path = os.path.dirname(os.path.abspath(__file__))
+input_test_path = curr_direct_path + "/../books_for_ocr/scanned_pics/test_2.PNG"
+print(input_test_path)
+original_img, preprocessed_img = pre.preprocess(input_test_path)
 lines = segment(preprocessed_img, "horizontal")
+line_path = curr_direct_path + "/../lines"
 for i, line in enumerate(lines):
     cv.imwrite(
-        "c:/Users/ab/Desktop/Anass/isima/OCR-for-arabic-letters/lines/line)"
-        + str(i)
-        + ".jpg",
+        line_path + "/line" + str(i) + ".jpg",
         line,
     )
 words = segment(lines[0], "vertical", 0, 6)
+words_path = curr_direct_path + "/../words"
 for i, word in enumerate(words):
     cv.imwrite(
-        "c:/Users/ab/Desktop/Anass/isima/OCR-for-arabic-letters/words/word)"
-        + str(i)
-        + ".jpg",
+        words_path + "/word)" + str(i) + ".jpg",
         word,
     )

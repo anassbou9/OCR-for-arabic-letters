@@ -70,6 +70,5 @@ def preprocess(image):
     binarized = binarize(img)
     corrected_skew = correct_skew(binarized)
     removed_noise = remove_noise(corrected_skew)
-    cv.imwrite("c:/Users/ab/Desktop/src code/lines/binarized.jpg", removed_noise)
 
     return img, removed_noise
