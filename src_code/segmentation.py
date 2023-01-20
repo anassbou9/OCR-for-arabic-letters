@@ -11,50 +11,42 @@ def projection(image, axis):
     projection_bins = np.sum(ones_and_zeros,axis=PROJECTION_DICT[axis])
     return projection_bins
 
+def segment(image, axis, thresh = 14, cut = 4):
 
-original_img, preprocessed_img = pre.preprocess("c:/Users/ab/Desktop/src code/books_for_ocr/scanned_pics/test_2.PNG")
-
-hist = projection(preprocessed_img, "horizontal")
-print("hist: ",hist)
-def segment(image, hist, thresh=2):
-    cnt=0
-    cut=3
-    lines = []
+    hist = projection(image, axis)
+    cnt = 0
+    segments = []
     start = -1
     for idx_2,my_bin in enumerate(hist):
+
+        if my_bin > thresh:
+            cnt=0
+
         if my_bin > thresh and start==-1:
             start = idx_2
 
         if my_bin <= thresh and start!=-1:
+
             cnt += 1
             if cnt >= cut:
-                lines.append(image[max(start-1,0):idx_2][:])
-                """if len(lines) in [2,4,6,9]:
-                    print("the starting index:{}, until:{}".format(start,idx_2) )
-                    print("the hist:", hist[start:idx_2-1])"""
-                start = -1
-                cnt = 0
-    return lines
 
-segments = segment(preprocessed_img,hist,16)
-titles = ['text','first line']
-for i,seg in enumerate(segments):
-    #print(seg)
-    cv.imwrite("c:/Users/ab/Desktop/src code/lines/line)"+str(i)+".jpg",seg)
-#pre.save_images("line",segments,"c:/Users/ab/Desktop/src code/lines/")
-"""for i,segment in enumerate(segments):
-    images = [preprocessed_img, segment]
-    print(i)
-    pre.plot_images(images, titles)"""
-            
+                if axis == "horizontal":
+                    segments.append(image[max(start-1,0):idx_2][:])
+                    start = -1
+                    cnt = 0
 
+                elif axis == "vertical":
 
-    
-    
+                    segments.append(image[:,max(start-1,0):idx_2])
+                    start = -1
+                    cnt = 0
 
+    return segments
 
-
-
-
-
-
+original_img, preprocessed_img = pre.preprocess("c:/Users/ab/Desktop/Anass/isima/OCR-for-arabic-letters/books_for_ocr/scanned_pics/test_2.PNG")
+lines = segment(preprocessed_img,"horizontal")
+for i,line in enumerate(lines):
+    cv.imwrite("c:/Users/ab/Desktop/Anass/isima/OCR-for-arabic-letters/lines/line)"+str(i)+".jpg",line)
+words = segment(lines[0], "vertical", 0, 6)
+for i,word in enumerate(words):
+    cv.imwrite("c:/Users/ab/Desktop/Anass/isima/OCR-for-arabic-letters/words/word)"+str(i)+".jpg",word)    
