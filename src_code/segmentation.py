@@ -3,8 +3,15 @@ import preprocessing as pre
 import matplotlib.pyplot as plt
 import os
 import cv2 as cv
+from itertools import chain
+
 
 PROJECTION_DICT = {"vertical": 0, "horizontal": 1}
+CURR_PATH = os.path.dirname(os.path.abspath(__file__))
+INPUT_TEST_PATH = CURR_PATH + "/../books_for_ocr/scanned_pics/test_13.PNG"
+line_path = CURR_PATH + "/../lines"
+words_path = CURR_PATH + "/../words"
+
 
 
 def projection(image, axis):
@@ -14,7 +21,7 @@ def projection(image, axis):
     return projection_bins
 
 
-def segment(image, axis, thresh=14, cut=4):
+def segment(image, axis, thresh=17, cut=4):
 
     hist = projection(image, axis)
     cnt = 0
@@ -46,22 +53,47 @@ def segment(image, axis, thresh=14, cut=4):
 
     return segments
 
+def visualize(list_of_images, output_path):
 
-curr_direct_path = os.path.dirname(os.path.abspath(__file__))
-input_test_path = curr_direct_path + "/../books_for_ocr/scanned_pics/test_2.PNG"
-print(input_test_path)
-original_img, preprocessed_img = pre.preprocess(input_test_path)
-lines = segment(preprocessed_img, "horizontal")
-line_path = curr_direct_path + "/../lines"
-for i, line in enumerate(lines):
-    cv.imwrite(
-        line_path + "/line" + str(i) + ".jpg",
-        line,
-    )
-words = segment(lines[0], "vertical", 0, 6)
-words_path = curr_direct_path + "/../words"
+    for i, line in enumerate(list_of_images):
+        cv.imwrite(
+            output_path + "/segment_" + str(i) + ".jpg",
+            line,
+        )
+
+
+def extract_words(img, write = 0):
+
+    print(img)
+    lines = segment(img, "horizontal")
+    words = []        
+
+    for line in lines:
+        line_words = segment(line, "vertical", 0, 6)
+        line_words.reverse()
+        words.append(line_words)
+    
+    if write:
+
+        visualize(lines, line_path)
+        flatten_list = list(chain.from_iterable(words))
+        visualize(flatten_list, words_path)
+
+    return words
+
+
+
+
+
+original_img, preprocessed_img = pre.preprocess(INPUT_TEST_PATH)
+words = extract_words(preprocessed_img, 1)
+
+#lines = segment(preprocessed_img, "horizontal")
+
+
+"""words = segment(lines[8], "vertical", 0, 6)
 for i, word in enumerate(words):
     cv.imwrite(
         words_path + "/word)" + str(i) + ".jpg",
         word,
-    )
+    )"""
