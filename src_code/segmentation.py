@@ -20,6 +20,16 @@ def projection(image, axis):
     projection_bins = np.sum(ones_and_zeros, axis=PROJECTION_DICT[axis])
     return projection_bins
 
+def gray_projection(image, axis):
+    """ Compute the horizontal or the vertical projection of a gray image """
+
+    if axis == 'horizontal':
+        projection_bins = np.sum(image, 1).astype('int32')
+    elif axis == 'vertical':
+        projection_bins = np.sum(image, 0).astype('int32')
+
+    return projection_bins
+
 
 def segment(image, axis, thresh=17, cut=4):
 
@@ -64,7 +74,6 @@ def visualize(list_of_images, output_path):
 
 def extract_words(img, write = 0):
 
-    print(img)
     lines = segment(img, "horizontal")
     words = []        
 
