@@ -80,7 +80,8 @@ def extract_words(img, write = 0):
     for line in lines:
         line_words = segment(line, "vertical", 0, 6)
         line_words.reverse()
-        words.append(line_words)
+        for word in line_words:
+            words.append((word,line))
     
     if write:
 
@@ -95,7 +96,7 @@ def extract_words(img, write = 0):
 
 
 original_img, preprocessed_img = pre.preprocess(INPUT_TEST_PATH)
-words = extract_words(preprocessed_img, 1)
+words = extract_words(preprocessed_img)
 
 #lines = segment(preprocessed_img, "horizontal")
 

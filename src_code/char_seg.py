@@ -544,7 +544,7 @@ def filter_regions(word_img, no_dots_copy, SRL:list, VP:list, upper_base:int, lo
             and check_dots(word_img[:, SEG[0]:SEG[1]])):
             
             # breakpoint()
-            # Case when starts with ش
+            # Case when starts with Ø´
             if SEGP[0] != -1 and \
                 ((check_stroke(no_dots_copy, no_dots_copy[:, SEGP[0]:SEGP[1]], upper_base, lower_base, SEGP_SR1, SEGP_SR2) \
                 and not check_dots(word_img[:, SEGP[0]:SEGP[1]]))\
@@ -562,7 +562,7 @@ def filter_regions(word_img, no_dots_copy, SRL:list, VP:list, upper_base:int, lo
             and (check_stroke(no_dots_copy, no_dots_copy[:, SEG[0]:SEG[1]], upper_base, lower_base, SEG_SR1, SEG_SR2) \
             and not check_dots(word_img[:, SEG[0]:SEG[1]])):
 
-            # Case starts with س
+            # Case starts with Ø³
             if SEGP[0] != -1\
                 and (check_stroke(no_dots_copy, no_dots_copy[:, SEGP[0]:SEGP[1]], upper_base, lower_base, SEGP_SR1, SEGP_SR2) \
                 and not check_dots(word_img[:, SEGP[0]:SEGP[1]])):
@@ -631,6 +631,9 @@ def extract_char(img, valid_SR):
 
 def segment(line, word_img):
 
+
+    line = cv.bitwise_not(line)
+    word_img = cv.bitwise_not(word_img)
     # binary_word = binarize(word_img)
     binary_word = word_img//255
     no_dots_copy = remove_dots(binary_word)
@@ -667,18 +670,16 @@ if __name__ == "__main__":
 
 
     CURR_PATH = os.path.dirname(os.path.abspath(__file__))
-    INPUT_TEST_PATH = CURR_PATH + "/../books_for_ocr/scanned_pics/test_14.PNG"
+    INPUT_TEST_PATH = CURR_PATH + "/../books_for_ocr/scanned_pics/test_7.PNG"
     original_img, preprocessed_img = pre.preprocess(INPUT_TEST_PATH)
     chars_path = CURR_PATH + "/../chars"
 
     lines = my_segm.segment(preprocessed_img, "horizontal")
-    line = lines[0]
+    line = lines[6]
     words = my_segm.segment(line, "vertical", 0, 6)
     word = words[3]
     #ine = cv.imread(CURR_PATH + "/../books_for_ocr/scanned_pics/test_.png", 0)
     #word = cv.imread(INPUT_TEST_PATH, 0)
-    line = cv.bitwise_not(line)
-    word = cv.bitwise_not(word)
     cr = segment(line, word)
     
     for i, ch in enumerate(cr):
