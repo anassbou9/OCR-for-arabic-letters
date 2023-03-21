@@ -52,7 +52,6 @@ def plot_images(images_list, images_names=["before", "after"]):
 
 
 def save_images(name, images_list, path):
-
     for i, image in enumerate(images_list):
         cv.imwrite(path + name + str(i) + ".jpg", image)
 

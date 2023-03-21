@@ -7,7 +7,6 @@ import os
 
 
 def objective(trial):
-
     cut = trial.suggest_int("cut", 2, 8)
     thresh = trial.suggest_int("thresh", 0, 26)
     y_true = [16, 14, 16, 18, 14, 14]
