@@ -5,6 +5,11 @@ from skimage.morphology import skeletonize, thin
 import preprocessing as pre
 import os
 
+CURR_PATH = os.path.dirname(os.path.abspath(__file__))
+INPUT_TEST_PATH = CURR_PATH + "/../books_for_ocr/scanned_pics/test_7.PNG"
+chars_path = CURR_PATH + "/../chars"
+
+
 
 def binarize(word_img):
     _, binary_img = cv.threshold(word_img, 127, 255, cv.THRESH_BINARY)
@@ -753,10 +758,8 @@ def segment(line, word_img):
 
 
 if __name__ == "__main__":
-    CURR_PATH = os.path.dirname(os.path.abspath(__file__))
-    INPUT_TEST_PATH = CURR_PATH + "/../books_for_ocr/scanned_pics/test_7.PNG"
+
     original_img, preprocessed_img = pre.preprocess(INPUT_TEST_PATH)
-    chars_path = CURR_PATH + "/../chars"
 
     lines = my_segm.segment(preprocessed_img, "horizontal")
     line = lines[7]
