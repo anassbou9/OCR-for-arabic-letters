@@ -7,7 +7,7 @@ import post_processing
 
 
 CURR_PATH = os.path.dirname(os.path.abspath(__file__))
-INPUT_TEST_PATH = CURR_PATH + "/../books_for_ocr/scanned_pics/test_16.png"
+INPUT_TEST_PATH = CURR_PATH + "/../books_for_ocr/scanned_pics/test_9.PNG"
 
 
 def run_ocr(img_path):
