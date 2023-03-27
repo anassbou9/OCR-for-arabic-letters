@@ -18,6 +18,7 @@ def binarize(word_img):
     return binary_img // 255
 
 
+#Cette fonction remplit les zones d'images entourés par des pixels blancs
 def fill(binary_img, VP):
     (h, w) = binary_img.shape
 
@@ -34,34 +35,34 @@ def fill(binary_img, VP):
                     and VP[col] != 0
                 ):
                     binary_img[row][col] = 1
-                    # flag = 1
+                    # flag = 1    #!!!!!!!!!!
 
     return binary_img
 
 
 def baseline_detection(word_img):
-    """Get baseline index of a given word"""
+    """Indice de ligne de base d'un mot"""
 
-    HP = my_segm.gray_projection(word_img, "horizontal")
-    peak = np.amax(HP)
+    Histo = my_segm.gray_projection(word_img, "horizontal")
+    sommet = np.amax(HP)
 
-    # Array of indices of max element
-    baseline_idx = np.where(HP == peak)[0]
+    # Matrice d'indices des max
+    baseline_idx = np.where(Histo == sommet)[0]
 
-    # Get first or last index
+    # Premier ou dernier indice
     upper_base = baseline_idx[0]
     lower_base = baseline_idx[-1]
     thickness = abs(lower_base - upper_base) + 1
 
     return upper_base, lower_base, thickness
 
-
+#Cette fonction le nombre de transitions maximale, elle parcourt l'image à partir la ligne de base et monte
 def horizontal_transitions(word_img, baseline_idx):
     max_transitions = 0
     max_transitions_idx = baseline_idx
     line_idx = baseline_idx - 1
     lines = []
-    # new temp image with no dots above baseline
+ 
 
     while line_idx >= 0:
         current_transitions = 0
@@ -79,13 +80,13 @@ def horizontal_transitions(word_img, baseline_idx):
         if current_transitions >= max_transitions:
             max_transitions = current_transitions
             lines.append(line_idx)
-            max_transitions_idx = line_idx
+            max_transitions_idx = line_idx 
 
         line_idx -= 1
 
-    return lines[len(lines) // 2]
+    return lines[len(lines) // 2] #!!!!!!!!!!!!!
 
-
+#Calcule le nombre de transitions verticaux pour une colonne donnée
 def vertical_transitions(word_img, cut):
     transitions = 0
 
@@ -102,9 +103,11 @@ def vertical_transitions(word_img, cut):
 
     return transitions
 
-
+#VP : Projection verticale
+#MFV : Valeur la plus fréquente
+#MTI : Indice du nombre de transitions maximale
 def cut_points(word_img, VP, MFV, MTI, baseline_idx):
-    # flag to know the start of the word
+    # flag pour savoir le début du mot
     f = 0
 
     flag = 0
@@ -113,7 +116,7 @@ def cut_points(word_img, VP, MFV, MTI, baseline_idx):
     separation_regions = []
 
     wrong = 0
-    # loop over the width of the image from right to left
+    # boucle sur la largeur de l'image commençant par la droite puisque l'écriture arabe commence par la droite
     while i >= 0:
         pixel = word_img[MTI, i]
 
@@ -122,7 +125,7 @@ def cut_points(word_img, VP, MFV, MTI, baseline_idx):
             flag = 1
 
         if f == 1:
-            # Get start and end of separation region (both are black pixels <----)
+            # Début et fin de la région de séparation
             if pixel == 0 and flag == 1:
                 start = i + 1
                 flag = 0
@@ -136,11 +139,11 @@ def cut_points(word_img, VP, MFV, MTI, baseline_idx):
                 left_MFV = -1
                 right_zero = -1
                 right_MFV = -1
-                # threshold for MFV
+                # threshold pour MFV
                 T = 1
 
                 j = mid - 1
-                # loop from mid to end to get nearest VP = 0 and VP = MFV
+                # boucle à gauche du milieu pour détécter k tel que VP[k]==0 ou VP[k]<= MFV +T
                 while j >= end:
                     if VP[j] == 0 and left_zero == -1:
                         left_zero = j
@@ -148,12 +151,12 @@ def cut_points(word_img, VP, MFV, MTI, baseline_idx):
                         left_MFV = j
 
                     # if left_zero != -1 and left_MFV != -1:
-                    #     break
+                    #     break                               #!!!!!!!!!!
 
                     j -= 1
 
                 j = mid
-                # loop from mid to start to get nearest VP = 0 and VP = MFV
+                # boucle à droite du milieu
                 while j <= start:
                     if VP[j] == 0 and right_zero == -1:
                         right_zero = j
@@ -165,9 +168,10 @@ def cut_points(word_img, VP, MFV, MTI, baseline_idx):
 
                     j += 1
 
-                # Check for VP = 0 first
+                # Vérifier d'abord si VP du mileu est nulle
                 if VP[mid] == 0:
                     cut_index = mid
+                #Prendre le zero le plus proche
                 elif left_zero != -1 and right_zero != -1:
                     if abs(left_zero - mid) <= abs(right_zero - mid):
                         cut_index = left_zero
@@ -180,7 +184,7 @@ def cut_points(word_img, VP, MFV, MTI, baseline_idx):
 
                 # Check for VP = MFV second
                 # elif VP[mid] <= MFV+T:
-                #     cut_index = mid
+                #     cut_index = mid                   !!!!!!!!!!!
                 elif left_MFV != -1:
                     cut_index = left_MFV
                 elif right_MFV != -1:
@@ -189,9 +193,9 @@ def cut_points(word_img, VP, MFV, MTI, baseline_idx):
                     cut_index = mid
 
                 seg = word_img[:, end:start]
-                HP = my_segm.gray_projection(seg, "horizontal")
-                SHPA = np.sum(HP[:MTI])
-                SHPB = np.sum(HP[MTI + 1 :])
+                HP = my_segm.gray_projection(seg, "horizontal")   #Histogramme de projection horizontale
+                SHPA = np.sum(HP[:MTI])    #Somme de HP en dessus de la ligne de base
+                SHPB = np.sum(HP[MTI + 1 :])  #Somme de HP en dessous de la ligne de base
 
                 top = 0
                 for idx, proj in enumerate(HP):
@@ -215,6 +219,7 @@ def cut_points(word_img, VP, MFV, MTI, baseline_idx):
 
 
 def check_baseline(word_img, start, end, upper_base, lower_base):
+    """Vérifier s'il y a une ligne de base dans la région"""
     j = end + 1
 
     cnt = 0
@@ -236,7 +241,7 @@ def check_baseline(word_img, start, end, upper_base, lower_base):
 
 
 def inside_hole(word_img, end_idx, start_idx):
-    """Check if a segment has a hole or not"""
+    """Vérifie si le segment contient des trous"""
 
     if end_idx == 0 and start_idx == 0:
         return 0
@@ -255,7 +260,7 @@ def inside_hole(word_img, end_idx, start_idx):
 
 
 def check_hole(segment):
-    """Check if a segment has a hole or not"""
+    """Autre méthode pour vérifier si le segment contient un trou"""
 
     # no_dots = segment.copy()
 
@@ -269,6 +274,7 @@ def check_hole(segment):
 
 
 def remove_dots(word_img, threshold=11):
+    #Supprimer les diacritiques en utilisant la méthodes des composantes connexes avec un threshold de 11
     no_dots = word_img.copy()
 
     components, labels, stats, GoCs = cv.connectedComponentsWithStats(
@@ -288,6 +294,7 @@ def remove_dots(word_img, threshold=11):
 
 
 def check_dots(segment):
+    #vérifier si le segment contient des diacritiques
     contours, hierarchy = cv.findContours(
         segment[:, 1 : segment.shape[1] - 1], cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE
     )
@@ -300,6 +307,7 @@ def check_dots(segment):
 
 
 def check_stroke(no_dots_copy, segment, upper_base, lower_base, SR1, SR2):
+    """Vérifier si la région de séparation est une chadda"""
     T = 1
     components, labels, stats, cen = cv.connectedComponentsWithStats(
         segment, connectivity=8
@@ -367,7 +375,12 @@ def check_stroke(no_dots_copy, segment, upper_base, lower_base, SR1, SR2):
 
     return False
 
-
+#SRL : Liste des régions de séparation
+#VP : Projection verticale
+#MTI : Indice du nombre de transitions maximale
+#upper_base : dessus de la ligne de base
+#MFV : valeur la plus fréquente
+#top_line : ligne du haut du mot
 def filter_regions(
     word_img,
     no_dots_copy,
@@ -392,13 +405,13 @@ def filter_regions(
         SR = SRL[SR_idx]
         end_idx, cut_idx, start_idx = SR
 
-        # Case 1 : Vertical Projection = 0
+        # Cas 1 : la projection verticale de l'indice de coupe est nulle
         if VP[cut_idx] == 0:
             valid_separation_regions.append(SR)
             SR_idx += 1
             continue
 
-        # Case 2 : no connected path between start and end
+        # Cas 2 : pas de chemin connecté entre le début et la fin du segment
         # components, labels= cv.connectedComponents(word_img[:, end_idx:start_idx+1], connectivity=8)
         if labels[MTI, end_idx] != labels[MTI, start_idx]:
             valid_separation_regions.append(SR)
@@ -406,8 +419,8 @@ def filter_regions(
             SR_idx += 1
             continue
 
-        # Case 3 : Contain Holes
-        # if check_hole(no_dots_copy[:, end_idx: cut_idx]) and inside_hole(no_dots_copy, end_idx, start_idx):
+        # Cas 3 : Contient des trous
+        # if check_hole(no_dots_copy[:, end_idx: cut_idx]) and inside_hole(no_dots_copy, end_idx, start_idx):  !!!!!!!!!!
         cc, l = cv.connectedComponents(
             1 - (no_dots_copy[:, end_idx : start_idx + 1]), connectivity=4
         )
@@ -416,14 +429,14 @@ def filter_regions(
             SR_idx += 1
             continue
 
-        # Case 4 : No baseline between start and end
+        # Cas 4 : Pas de ligne de base entre le début et la fin du segment
         segment = no_dots_copy[:, end_idx + 1 : start_idx]
         segment_width = start_idx - end_idx - 1
 
         j = end_idx + 1
         cnt = 0
         while j < start_idx:
-            # Black pixel (Discontinuity)
+            # pixel noir (Discontinuité)
             base = upper_base - T
             while base <= lower_base + T:
                 pixel = no_dots_copy[base][j]
@@ -452,7 +465,7 @@ def filter_regions(
 
         # if SR_idx == 0:
         #     breakpoint()
-        # Case 5 : Last region or next VP[nextcut] = 0
+        # Cas 5 : dernière région ou VP[nextcut] = 0
         if SR_idx == len(SRL) - 1 or VP[SRL[SR_idx + 1][1]] == 0:
             if SR_idx == len(SRL) - 1:
                 segment_dots = word_img[:, : SRL[SR_idx][1] + 1]
@@ -496,6 +509,9 @@ def filter_regions(
                 continue
 
         # Strokes
+        #SEGP : segment précédant
+        #SEGN : Prochaint segment
+        #SEGNN: Segment après le prochain segment
 
         SEGP = (-1, -1)
         SEG = (-1, -1)
@@ -544,7 +560,7 @@ def filter_regions(
         # if SR_idx == 6:
         #     breakpoint()
 
-        # SEG is stroke with dots
+        # SEG est une chadda avec diacritiques
         if SEG[0] != -1 and (
             check_stroke(
                 no_dots_copy,
@@ -557,7 +573,7 @@ def filter_regions(
             and check_dots(word_img[:, SEG[0] : SEG[1]])
         ):
             # breakpoint()
-            # Case when starts with Ø´
+            # Cas où ca commence par Ø´
             if SEGP[0] != -1 and (
                 (
                     check_stroke(
@@ -583,7 +599,7 @@ def filter_regions(
                 SR_idx += 1
                 continue
 
-        # SEG is stroke without dots
+        # SEG est une chadda sans diacritiques
         elif SEG[0] != -1 and (
             check_stroke(
                 no_dots_copy,
@@ -595,7 +611,7 @@ def filter_regions(
             )
             and not check_dots(word_img[:, SEG[0] : SEG[1]])
         ):
-            # Case starts with Ø³
+            # Cas où ca commence par Ø³
             if SEGP[0] != -1 and (
                 check_stroke(
                     no_dots_copy,
@@ -610,7 +626,7 @@ def filter_regions(
                 SR_idx += 2
                 continue
 
-            # SEGN is stroke without dots
+            # SEGN est une chadda sans diacritques
             if SEGN[0] != -1 and (
                 check_stroke(
                     no_dots_copy,
@@ -626,7 +642,7 @@ def filter_regions(
                 SR_idx += 3
                 continue
 
-            # SEGN stroke with Dots and SEGNN stroke without Dots
+            # SEGN est une chadda avec diacritiques et SEGNN chadda sans diacritiques
             if (
                 SEGN[0] != -1
                 and (
@@ -663,7 +679,7 @@ def filter_regions(
                 SR_idx += 3
                 continue
 
-            # SEGN is not stroke or Stroke with Dots
+            # SEGN pas une chadda ou chadda avec diacritiques
             if SEGN[0] != -1 and (
                 (
                     not check_stroke(
@@ -705,7 +721,7 @@ def filter_regions(
 
 
 def extract_char(img, valid_SR):
-    # binary image needs to be (0, 255) to be saved on disk not (0, 1)
+    
     img = img * 255
     h, w = img.shape
 
