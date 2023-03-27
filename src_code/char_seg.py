@@ -44,7 +44,7 @@ def baseline_detection(word_img):
     """Indice de ligne de base d'un mot"""
 
     Histo = my_segm.gray_projection(word_img, "horizontal")
-    sommet = np.amax(HP)
+    sommet = np.amax(Histo)
 
     # Matrice d'indices des max
     baseline_idx = np.where(Histo == sommet)[0]
