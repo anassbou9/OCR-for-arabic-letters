@@ -151,7 +151,7 @@ def cut_points(word_img, VP, MFV, MTI, baseline_idx):
                         left_MFV = j
 
                     # if left_zero != -1 and left_MFV != -1:
-                    #     break                               #!!!!!!!!!!
+                    #     break                               
 
                     j -= 1
 
@@ -184,7 +184,7 @@ def cut_points(word_img, VP, MFV, MTI, baseline_idx):
 
                 # Check for VP = MFV second
                 # elif VP[mid] <= MFV+T:
-                #     cut_index = mid                   !!!!!!!!!!!
+                #     cut_index = mid                   
                 elif left_MFV != -1:
                     cut_index = left_MFV
                 elif right_MFV != -1:
@@ -224,7 +224,7 @@ def check_baseline(word_img, start, end, upper_base, lower_base):
 
     cnt = 0
     while j < start:
-        # Black pixel (Discontinuity)
+        # pixel noir (discontinuité)
         base = upper_base
         while base <= lower_base:
             pixel = word_img[base][j]
@@ -307,7 +307,7 @@ def check_dots(segment):
 
 
 def check_stroke(no_dots_copy, segment, upper_base, lower_base, SR1, SR2):
-    """Vérifier si la région de séparation est une chadda"""
+    """Vérifier si la région de séparation est une stroke"""
     T = 1
     components, labels, stats, cen = cv.connectedComponentsWithStats(
         segment, connectivity=8
@@ -560,7 +560,7 @@ def filter_regions(
         # if SR_idx == 6:
         #     breakpoint()
 
-        # SEG est une chadda avec diacritiques
+        # SEG est une stroke avec diacritiques
         if SEG[0] != -1 and (
             check_stroke(
                 no_dots_copy,
@@ -599,7 +599,7 @@ def filter_regions(
                 SR_idx += 1
                 continue
 
-        # SEG est une chadda sans diacritiques
+        # SEG est un stroke sans diacritiques
         elif SEG[0] != -1 and (
             check_stroke(
                 no_dots_copy,
@@ -626,7 +626,7 @@ def filter_regions(
                 SR_idx += 2
                 continue
 
-            # SEGN est une chadda sans diacritques
+            # SEGN est un stroke sans diacritques
             if SEGN[0] != -1 and (
                 check_stroke(
                     no_dots_copy,
@@ -642,7 +642,7 @@ def filter_regions(
                 SR_idx += 3
                 continue
 
-            # SEGN est une chadda avec diacritiques et SEGNN chadda sans diacritiques
+            # SEGN est un stroke avec diacritiques et SEGNN stroke sans diacritiques
             if (
                 SEGN[0] != -1
                 and (
@@ -679,7 +679,7 @@ def filter_regions(
                 SR_idx += 3
                 continue
 
-            # SEGN pas une chadda ou chadda avec diacritiques
+            # SEGN pas un stroke ou stroke avec diacritiques
             if SEGN[0] != -1 and (
                 (
                     not check_stroke(
